@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인천청라고등학교 급식 알리미</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Pretendard', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        
+        /* Shimmer Effect for Loading Skeletons */
+        .shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        .dark .shimmer {
+            background: linear-gradient(90deg, #334155 25%, #1e293b 50%, #334155 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen pb-16">
+
+    <!-- Navigation / Header -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/60 dark:border-slate-800/60 transition-all duration-300">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-lg shadow-brand-600/20">
+                    <i class="fa-solid fa-utensils text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <h1 id="header-school-name" class="font-extrabold text-lg text-slate-900 dark:text-white tracking-tight">인천청라고등학교</h1>
+                        <span class="px-2 py-0.5 text-xs font-semibold bg-brand-100 text-brand-800 dark:bg-brand-900/50 dark:text-brand-300 rounded-full">중식 전용</span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">🌱 청란인들의 건강하고 맛있는 점심시간!</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <!-- Change School Trigger -->
+                <button onclick="openSchoolSearchModal()" class="hidden md:flex items-center space-x-1 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>다른 학교 검색</span>
+                </button>
+                
+                <!-- Dark Mode Toggle -->
+                <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition" aria-label="Toggle Dark Mode">
+                    <i id="dark-icon" class="fa-solid fa-moon text-slate-600 dark:text-amber-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto px-4 mt-6">
+        
+        <!-- Mobile Change School Floating Trigger -->
+        <div class="block md:hidden mb-4">
+            <button onclick="openSchoolSearchModal()" class="w-full flex items-center justify-center space-x-2 p-3 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 text-sm font-semibold text-slate-700 dark:text-slate-300 rounded-2xl shadow-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                <i class="fa-solid fa-magnifying-glass text-brand-600"></i>
+                <span>다른 고등학교 급식 검색하기</span>
+            </button>
+        </div>
+
+        <!-- Sub-hero Banner Info -->
+        <div class="bg-gradient-to-r from-brand-600 via-emerald-600 to-teal-600 rounded-3xl p-6 md:p-8 text-white shadow-xl shadow-brand-600/10 mb-6 relative overflow-hidden">
+            <div class="absolute -right-8 -bottom-8 text-white/5 text-9xl font-black select-none pointer-events-none">LUNCH</div>
+            <div class="relative z-10">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <span class="px-2.5 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold uppercase tracking-wider">Today's Lunch Menu</span>
+                        <h2 id="hero-date" class="text-2xl md:text-3xl font-extrabold mt-2 tracking-tight">로딩 중...</h2>
+                        <p id="hero-school-address" class="text-xs md:text-sm text-brand-100 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> 주소 정보 로딩 중...</p>
+                    </div>
+                    <!-- View Switch (Daily vs Weekly) -->
+                    <div class="flex bg-white/15 backdrop-blur-md rounded-2xl p-1 border border-white/10">
+                        <button id="btn-daily-view" onclick="setViewMode('daily')" class="px-4 py-2 rounded-xl text-xs font-bold transition duration-200 bg-white text-brand-800 shadow-sm">
+                            <i class="fa-solid fa-calendar-day mr-1"></i> 일일 점심
+                        </button>
+                        <button id="btn-weekly-view" onclick="setViewMode('weekly')" class="px-4 py-2 rounded-xl text-xs font-bold transition duration-200 text-white hover:bg-white/10">
+                            <i class="fa-solid fa-calendar-week mr-1"></i> 주간 점심 식단표
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Navigator Panel (Only shown in Daily View) -->
+        <div id="date-navigator" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 p-4 mb-6 flex items-center justify-between shadow-sm transition-all">
+            <div class="flex items-center space-x-2">
+                <button onclick="navigateDate(-1)" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="이전날">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button onclick="setToday()" class="px-4 h-10 rounded-xl bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/40 dark:hover:bg-brand-900/40 border border-brand-200/50 dark:border-brand-900/50 text-brand-700 dark:text-brand-300 font-bold text-sm transition">
+                    오늘
+                </button>
+                <button onclick="navigateDate(1)" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="다음날">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <!-- Date Input -->
+                <div class="relative">
+                    <input type="date" id="datepicker" onchange="onDatePickerChange(this.value)" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+                    <button class="px-4 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 flex items-center space-x-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        <i class="fa-regular fa-calendar-days text-brand-600"></i>
+                        <span id="date-btn-text" class="text-xs font-semibold">날짜 선택</span>
+                    </button>
+                </div>
+                
+                <!-- Share Button -->
+                <button onclick="shareMeals()" class="px-4 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 flex items-center space-x-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="중식 카톡 공유">
+                    <i class="fa-regular fa-share-from-square text-emerald-500"></i>
+                    <span class="text-xs font-semibold hidden sm:inline">중식 공유</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Primary Grid: Optimized Single Meal Dashboard (Daily View) -->
+        <div id="daily-meals-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Main Lunch Menu Card (Col-span 2) -->
+            <div id="meal-card-lunch" class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800/60 p-6 md:p-8 flex flex-col justify-between shadow-sm transition-all duration-300 hover:shadow-md relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-brand-500 via-emerald-500 to-teal-500"></div>
+                
+                <div>
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 rounded-2xl bg-brand-50 dark:bg-brand-950/40 flex items-center justify-center text-brand-600 dark:text-brand-400 shadow-inner">
+                                <i class="fa-solid fa-sun text-2xl animate-spin-slow"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">오늘의 점심 급식 식단</h3>
+                                <p class="text-xs text-slate-400 dark:text-slate-500">맛있는 에너지가 충전되는 행복한 4교시 후 점심시간</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-extrabold bg-brand-100 text-brand-800 dark:bg-brand-950/80 dark:text-brand-300 rounded-xl">중식 단독 제공</span>
+                    </div>
+                    
+                    <hr class="border-slate-100 dark:border-slate-800/80 my-5">
+                    
+                    <!-- Beautiful Menu Items Wrap -->
+                    <ul id="list-lunch" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-700 dark:text-slate-300 text-base">
+                        <!-- Meal items inserted here dynamically -->
+                    </ul>
+                </div>
+                
+                <!-- Calorie Info Box with visual progress bar -->
+                <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800/80">
+                    <div class="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400 mb-2">
+                        <span class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-fire text-amber-500"></i> 점심 섭취 열량 (권장 대비)</span>
+                        <span id="kcal-lunch" class="font-black text-slate-900 dark:text-white text-base">0 Kcal</span>
+                    </div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3 overflow-hidden">
+                        <div id="kcal-progress-bar" class="bg-gradient-to-r from-brand-500 to-emerald-500 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1.5 text-right">※ 고등학생 한 끼 권장 섭취 열량은 약 800~900kcal 입니다.</p>
+                </div>
+            </div>
+            
+            <!-- Side Panel: Dynamic Nutrition Meter -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800/60 p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-600">
+                            <i class="fa-solid fa-chart-simple"></i>
+                        </div>
+                        <h4 class="font-extrabold text-slate-900 dark:text-white text-sm">영양성분 & 원산지 정보</h4>
+                    </div>
+                    
+                    <!-- Tabs for Info -->
+                    <div class="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1 mb-4 text-xs font-semibold">
+                        <button id="btn-info-origin" onclick="switchInfoTab('origin')" class="flex-1 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition">원산지</button>
+                        <button id="btn-info-nutrient" onclick="switchInfoTab('nutrient')" class="flex-1 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition">영양성분 수치</button>
+                    </div>
+
+                    <!-- Origin Tab Content -->
+                    <div id="info-tab-origin" class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-h-[220px] overflow-y-auto pr-1 space-y-2">
+                        점심 식자재 원산지 정보가 여기에 실시간으로 요약 표시됩니다.
+                    </div>
+
+                    <!-- Nutrient Tab Content (Hidden by default) -->
+                    <div id="info-tab-nutrient" class="hidden text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-h-[220px] overflow-y-auto pr-1 space-y-2">
+                        정밀 영양소 분석 데이터가 여기에 실시간으로 매핑됩니다.
+                    </div>
+                </div>
+                
+                <div class="text-[10px] text-slate-400 mt-4 border-t border-slate-100 dark:border-slate-800/80 pt-3 flex justify-between items-center">
+                    <span>데이터 제공: 교육부 NEIS</span>
+                    <a href="https://open.neis.go.kr" target="_blank" class="hover:underline text-brand-600">나이스 공식포털 <i class="fa-solid fa-arrow-up-right-from-square ml-0.5"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Meals View Container (Hidden by default) -->
+        <div id="weekly-meals-container" class="hidden">
+            <!-- Weekly Grid (Clean 5 Columns for Mon to Fri Lunches) -->
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-4" id="weekly-days-grid">
+                <!-- Mon to Fri will be loaded dynamically -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- School Search Modal (Overlay) -->
+    <div id="search-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 w-full max-w-lg shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-850 dark:to-slate-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-slate-200/60 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300">
+                        <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-slate-900 dark:text-white">전국 고등학교 급식 조회</h3>
+                        <p class="text-xs text-slate-400 dark:text-slate-500">인천청라고등학교 및 전국 모든 고등학교의 급식을 실시간으로 검색해 볼 수 있습니다.</p>
+                    </div>
+                </div>
+                <button onclick="closeSchoolSearchModal()" class="w-8 h-8 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-6">
+                <!-- Search Input Group -->
+                <div class="relative mb-4">
+                    <input type="text" id="modal-search-input" onkeyup="if(event.key === 'Enter') handleSchoolSearch()" placeholder="학교 이름을 입력하세요 (예: 청라고, 초은고, 세종고)" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none pr-12">
+                    <button onclick="handleSchoolSearch()" class="absolute right-3 top-2 w-8 h-8 rounded-lg bg-brand-600 hover:bg-brand-700 flex items-center justify-center text-white transition">
+                        <i class="fa-solid fa-search text-xs"></i>
+                    </button>
+                </div>
+                
+                <!-- Search Results Area -->
+                <div class="max-h-[250px] overflow-y-auto space-y-2 mt-4" id="search-results-list">
+                    <div class="text-center py-8 text-slate-400 dark:text-slate-500 text-xs">
+                        <i class="fa-solid fa-school text-4xl mb-3 block opacity-40"></i>
+                        학교 이름 또는 일부 단어를 입력하여 검색하세요.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating toast for alerts -->
+    <div id="toast-message" class="fixed bottom-6 right-6 z-50 px-5 py-3.5 bg-slate-900 dark:bg-slate-850 text-white rounded-2xl shadow-xl flex items-center space-x-3 text-sm transform translate-y-20 opacity-0 transition-all duration-300">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-text">메시지 내용</span>
+    </div>
+
+    <script>
+        // --- 1. State Variables ---
+        let currentSchool = {
+            name: '인천청라고등학교',
+            code: 'E100002023', // Real SD School Code
+            officeCode: 'E10',
+            address: '인천광역시 서구 담지로86번길 16-14'
+        };
+        
+        // Target date - defaults to today
+        let currentDate = new Date();
+        let viewMode = 'daily'; // 'daily' or 'weekly'
+        let infoActiveTab = 'origin'; // 'origin' or 'nutrient'
+
+        // Cache database for fetched meals
+        let cachedMeals = {};
+
+        // Parses a raw dish name from NEIS API (e.g., "당면피망잡채1.5.8.10.13.")
+        function parseDish(rawName) {
+            let cleanName = rawName.replace(/<[^>]*>/g, '').trim(); // Clean up unexpected html tags
+            
+            // Pattern 1: Parentheses like "돈가스(1.2.5.6.10)"
+            const parenMatch = cleanName.match(/\(([\d\.]+)\)/);
+            if (parenMatch) {
+                cleanName = cleanName.replace(/\([\d\.]+\)/, '').trim();
+            } else {
+                // Pattern 2: Trailing dot numbers like "당면잡채1.5.8.10."
+                const trailingMatch = cleanName.match(/([\d\.]+\.?)$/);
+                if (trailingMatch) {
+                    cleanName = cleanName.replace(/([\d\.]+\.?)$/, '').trim();
+                }
+            }
+            
+            return {
+                name: cleanName
+            };
+        }
+
+        // --- STREAMING_CHUNK: Setting up NEIS Data Grabber... ---
+        // General query parser for NEIS date strings (YYYYMMDD)
+        function getNeisDateString(dateObj) {
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            return `${y}${m}${d}`;
+        }
+
+        // Fetch School Basic Info dynamically
+        async function fetchSchoolBasicInfo(schoolName) {
+            try {
+                const url = `https://open.neis.go.kr/hub/schoolInfo?Type=json&SCHUL_NM=${encodeURIComponent(schoolName)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.schoolInfo && data.schoolInfo[1] && data.schoolInfo[1].row) {
+                    const row = data.schoolInfo[1].row[0];
+                    return {
+                        name: row.SCHUL_NM,
+                        code: row.SD_SCHUL_CODE,
+                        officeCode: row.ATPT_OFCDC_SC_CODE,
+                        officeName: row.ATPT_OFCDC_SC_NM,
+                        address: row.ORG_RDNMA
+                    };
+                }
+            } catch (error) {
+                console.error("School lookup failed, fallback in place.", error);
+            }
+            return null;
+        }
+
+        // Fetch Meal service information (LUNCH focusing only)
+        async function fetchMealsFromNeis(school, targetDate) {
+            const dateStr = getNeisDateString(targetDate);
+            const cacheKey = `${school.code}_${dateStr}`;
+            
+            if (cachedMeals[cacheKey]) {
+                return cachedMeals[cacheKey];
+            }
+            
+            try {
+                const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&ATPT_OFCDC_SC_CODE=${school.officeCode}&SD_SCHUL_CODE=${school.code}&MLSV_YMD=${dateStr}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                let lunchData = null;
+                
+                if (data.mealServiceDietInfo && data.mealServiceDietInfo[1] && data.mealServiceDietInfo[1].row) {
+                    const rows = data.mealServiceDietInfo[1].row;
+                    // Find "중식" explicitly
+                    const lunchRow = rows.find(row => row.MMEAL_SC_NM.includes("중식"));
+                    if (lunchRow) {
+                        lunchData = {
+                            kcal: lunchRow.CAL_INFO,
+                            origin: lunchRow.ORPLC_INFO,
+                            nutrients: lunchRow.NTR_INFO,
+                            rawDishes: lunchRow.DDISH_NM.split('<br/>')
+                        };
+                    }
+                }
+                
+                cachedMeals[cacheKey] = lunchData;
+                return lunchData;
+            } catch (error) {
+                console.error("Failed to fetch meals from NEIS:", error);
+                return null;
+            }
+        }
+
+        // Fetch weekly lunches from NEIS
+        async function fetchWeeklyMealsFromNeis(school, startDate, endDate) {
+            const fromDateStr = getNeisDateString(startDate);
+            const toDateStr = getNeisDateString(endDate);
+            const cacheKey = `weekly_${school.code}_${fromDateStr}_${toDateStr}`;
+            
+            if (cachedMeals[cacheKey]) {
+                return cachedMeals[cacheKey];
+            }
+            
+            try {
+                const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&ATPT_OFCDC_SC_CODE=${school.officeCode}&SD_SCHUL_CODE=${school.code}&MLSV_FROM_YMD=${fromDateStr}&MLSV_TO_YMD=${toDateStr}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                let weeklyData = {};
+                
+                if (data.mealServiceDietInfo && data.mealServiceDietInfo[1] && data.mealServiceDietInfo[1].row) {
+                    const rows = data.mealServiceDietInfo[1].row;
+                    rows.forEach(row => {
+                        const dateYmd = row.MLSV_YMD; // YYYYMMDD
+                        const mealType = row.MMEAL_SC_NM; // "조식", "중식", "석식"
+                        
+                        if (mealType.includes("중식")) {
+                            weeklyData[dateYmd] = {
+                                kcal: row.CAL_INFO,
+                                rawDishes: row.DDISH_NM.split('<br/>')
+                            };
+                        }
+                    });
+                }
+                
+                cachedMeals[cacheKey] = weeklyData;
+                return weeklyData;
+            } catch (error) {
+                console.error("Weekly fetch failed:", error);
+                return {};
+            }
+        }
+
+        // --- STREAMING_CHUNK: Rendering UI Elements Dynamically... ---
+        // Render current school details
+        function renderSchoolDetails() {
+            document.getElementById('header-school-name').textContent = currentSchool.name;
+            document.getElementById('hero-school-address').innerHTML = `<i class="fa-solid fa-location-dot mr-1"></i> ${currentSchool.address}`;
+        }
+
+        // Format Date elegantly
+        function getFormattedDateString(date) {
+            const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+            return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 (${days[date.getDay()]})`;
+        }
+
+        // Render Skeletons / Loading states for clean UX
+        function showLoadingSkeletons() {
+            const skeletons = `
+                <li class="h-12 w-full bg-slate-100 dark:bg-slate-800 animate-pulse rounded-2xl flex items-center px-4"><span class="h-4 w-1/3 shimmer rounded"></span></li>
+                <li class="h-12 w-full bg-slate-100 dark:bg-slate-800 animate-pulse rounded-2xl flex items-center px-4"><span class="h-4 w-1/2 shimmer rounded"></span></li>
+                <li class="h-12 w-full bg-slate-100 dark:bg-slate-800 animate-pulse rounded-2xl flex items-center px-4"><span class="h-4 w-2/3 shimmer rounded"></span></li>
+                <li class="h-12 w-full bg-slate-100 dark:bg-slate-800 animate-pulse rounded-2xl flex items-center px-4"><span class="h-4 w-5/12 shimmer rounded"></span></li>
+            `;
+            document.getElementById('list-lunch').innerHTML = skeletons;
+            document.getElementById('kcal-lunch').innerHTML = `<div class="h-5 w-16 shimmer rounded"></div>`;
+            document.getElementById('kcal-progress-bar').style.width = '0%';
+            
+            document.getElementById('info-tab-origin').innerHTML = `<div class="h-4 w-full shimmer rounded mb-2"></div><div class="h-4 w-5/6 shimmer rounded"></div>`;
+            document.getElementById('info-tab-nutrient').innerHTML = `<div class="h-4 w-full shimmer rounded mb-2"></div><div class="h-4 w-5/6 shimmer rounded"></div>`;
+        }
+
+        function playNavSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.03, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.1);
+            } catch (e) {}
+        }
+
+        // Build premium-looking dish grid item
+        function buildDishListItem(rawDish) {
+            if (!rawDish || rawDish.trim() === '') return '';
+            
+            const parsed = parseDish(rawDish);
+            let classStr = "flex items-center justify-between p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/60 hover:border-brand-300 hover:bg-white dark:hover:bg-slate-850 transition duration-150 shadow-sm";
+            
+            return `
+                <li class="${classStr}">
+                    <div class="flex items-center space-x-2.5">
+                        <span class="w-6 h-6 rounded-full bg-brand-100 dark:bg-brand-900/60 flex items-center justify-center text-brand-700 dark:text-brand-300 text-xs font-black">
+                            <i class="fa-solid fa-spoon"></i>
+                        </span>
+                        <span class="font-bold text-slate-800 dark:text-slate-100">${parsed.name}</span>
+                    </div>
+                </li>
+            `;
+        }
+
+        // --- STREAMING_CHUNK: Orchestrating Daily Lunch Updates... ---
+        // Load daily meal render focusing on LUNCH
+        async function loadDailyMeals() {
+            showLoadingSkeletons();
+            
+            document.getElementById('hero-date').textContent = getFormattedDateString(currentDate);
+            document.getElementById('datepicker').value = currentDate.toISOString().split('T')[0];
+            document.getElementById('date-btn-text').textContent = currentDate.toLocaleDateString();
+
+            const meal = await fetchMealsFromNeis(currentSchool, currentDate);
+
+            const lunchList = document.getElementById('list-lunch');
+            
+            if (meal && meal.rawDishes.length > 0) {
+                lunchList.innerHTML = meal.rawDishes.map(buildDishListItem).join('');
+                document.getElementById('kcal-lunch').textContent = meal.kcal;
+                
+                // Parse calories for visualization
+                const kcalNum = parseInt(meal.kcal.replace(/[^0-9]/g, "")) || 0;
+                // standard 850 kcal = 100%
+                const pct = Math.min(Math.round((kcalNum / 850) * 100), 100);
+                document.getElementById('kcal-progress-bar').style.width = `${pct}%`;
+            } else {
+                lunchList.innerHTML = `
+                    <div class="col-span-1 md:col-span-2 py-16 text-center text-slate-400 dark:text-slate-500 text-sm">
+                        <i class="fa-solid fa-mug-hot text-5xl mb-3 block opacity-20"></i>
+                        <p class="font-bold">오늘 제공되는 점심 급식이 없거나 휴업일입니다.</p>
+                        <p class="text-xs text-slate-400 dark:text-slate-600 mt-1">대체 휴일, 주말 또는 방학 기간일 수 있습니다.</p>
+                    </div>`;
+                document.getElementById('kcal-lunch').textContent = '0 Kcal';
+                document.getElementById('kcal-progress-bar').style.width = '0%';
+            }
+
+            // Populate Origin & Nutrients
+            const originContainer = document.getElementById('info-tab-origin');
+            const nutrientContainer = document.getElementById('info-tab-nutrient');
+            
+            if (meal) {
+                originContainer.innerHTML = meal.origin ? `<div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl leading-relaxed whitespace-pre-line text-[11px] font-medium border border-slate-100 dark:border-slate-800">${meal.origin}</div>` : '<p class="text-slate-400 text-xs">등록된 원산지 정보가 없습니다.</p>';
+                nutrientContainer.innerHTML = meal.nutrients ? `<div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl leading-relaxed whitespace-pre-line text-[11px] font-medium border border-slate-100 dark:border-slate-800">${meal.nutrients}</div>` : '<p class="text-slate-400 text-xs">등록된 영양성분 정보가 없습니다.</p>';
+            } else {
+                originContainer.innerHTML = '<p class="text-slate-400 text-xs p-3">식단이 존재하지 않아 정보를 표시할 수 없습니다.</p>';
+                nutrientContainer.innerHTML = '<p class="text-slate-400 text-xs p-3">식단이 존재하지 않아 정보를 표시할 수 없습니다.</p>';
+            }
+        }
+
+        // Switch info tab (Origin / Nutrients)
+        function switchInfoTab(tabType) {
+            infoActiveTab = tabType;
+            const originBtn = document.getElementById('btn-info-origin');
+            const nutrientBtn = document.getElementById('btn-info-nutrient');
+            const originDiv = document.getElementById('info-tab-origin');
+            const nutrientDiv = document.getElementById('info-tab-nutrient');
+
+            if (tabType === 'origin') {
+                originBtn.className = "flex-1 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition";
+                nutrientBtn.className = "flex-1 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition";
+                originDiv.classList.remove('hidden');
+                nutrientDiv.classList.add('hidden');
+            } else {
+                nutrientBtn.className = "flex-1 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition";
+                originBtn.className = "flex-1 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition";
+                nutrientDiv.classList.remove('hidden');
+                originDiv.classList.add('hidden');
+            }
+        }
+
+        // Get starting monday and ending friday of current week
+        function getWeeklyRange(date) {
+            const currentDay = date.getDay();
+            const distanceToMon = currentDay === 0 ? -6 : 1 - currentDay; // Distance to Monday
+            const monday = new Date(date);
+            monday.setDate(date.getDate() + distanceToMon);
+            
+            const friday = new Date(monday);
+            friday.setDate(monday.getDate() + 4); // Friday
+            
+            return { monday, friday };
+        }
+
+        // Set layout mode (Daily vs Weekly)
+        async function setViewMode(mode) {
+            viewMode = mode;
+            const dailyBtn = document.getElementById('btn-daily-view');
+            const weeklyBtn = document.getElementById('btn-weekly-view');
+            const dailyContainer = document.getElementById('daily-meals-container');
+            const weeklyContainer = document.getElementById('weekly-meals-container');
+            const dateNavigator = document.getElementById('date-navigator');
+
+            playNavSound();
+
+            if (mode === 'daily') {
+                dailyBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition duration-200 bg-white text-brand-800 shadow-sm";
+                weeklyBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition duration-200 text-white hover:bg-white/10";
+                dailyContainer.classList.remove('hidden');
+                weeklyContainer.classList.add('hidden');
+                dateNavigator.classList.remove('hidden');
+                loadDailyMeals();
+            } else {
+                weeklyBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition duration-200 bg-white text-brand-800 shadow-sm";
+                dailyBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition duration-200 text-white hover:bg-white/10";
+                dailyContainer.classList.add('hidden');
+                weeklyContainer.classList.remove('hidden');
+                dateNavigator.classList.add('hidden');
+                await loadWeeklyMeals();
+            }
+        }
+
+        // --- STREAMING_CHUNK: Loading Weekly Grid Layout... ---
+        // Load weekly lunches only (5 columns, super clean)
+        async function loadWeeklyMeals() {
+            const { monday, friday } = getWeeklyRange(currentDate);
+            document.getElementById('hero-date').textContent = `${monday.getMonth() + 1}월 ${monday.getDate()}일 ~ ${friday.getMonth() + 1}월 ${friday.getDate()}일 (주간 점심 식단)`;
+            
+            const gridContainer = document.getElementById('weekly-days-grid');
+            
+            // Build skeletons
+            gridContainer.innerHTML = Array(5).fill(0).map(() => `
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800/80 p-5 shadow-sm animate-pulse">
+                    <div class="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded mb-4"></div>
+                    <div class="space-y-2">
+                        <div class="h-4 w-full bg-slate-100 dark:bg-slate-800 rounded"></div>
+                        <div class="h-4 w-3/4 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                        <div class="h-4 w-5/6 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                    </div>
+                </div>
+            `).join('');
+
+            const weeklyData = await fetchWeeklyMealsFromNeis(currentSchool, monday, friday);
+            const daysNames = ['월', '화', '수', '목', '금'];
+            let html = '';
+
+            for (let i = 0; i < 5; i++) {
+                const targetDay = new Date(monday);
+                targetDay.setDate(monday.getDate() + i);
+                const dayStr = getNeisDateString(targetDay);
+                const dayMeal = weeklyData[dayStr];
+
+                const isTodayClass = (targetDay.toDateString() === new Date().toDateString()) 
+                    ? "ring-4 ring-brand-500/30 dark:ring-brand-500/20 bg-brand-50/10 dark:bg-brand-950/20 border-brand-500" 
+                    : "";
+
+                html += `
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/60 dark:border-slate-800/60 p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition ${isTodayClass}">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-3">
+                                <span class="text-sm font-extrabold text-slate-800 dark:text-slate-100">${targetDay.getDate()}일 (${daysNames[i]})</span>
+                                ${isTodayClass ? '<span class="text-[10px] font-black text-white bg-brand-600 px-2 py-0.5 rounded-lg animate-pulse">오늘</span>' : ''}
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between text-[10px] text-brand-600 dark:text-brand-400 font-bold">
+                                    <span>중식 ☀️</span>
+                                    <span>${dayMeal ? dayMeal.kcal : '식단없음'}</span>
+                                </div>
+                                <ul class="text-xs space-y-1.5 text-slate-600 dark:text-slate-400">
+                                    ${dayMeal ? dayMeal.rawDishes.map(d => {
+                                        const p = parseDish(d);
+                                        let textStyle = "py-1 px-1.5 rounded-lg bg-slate-50/50 dark:bg-slate-800/50 block truncate ";
+                                        return `<li class="${textStyle}" title="${p.name}">• ${p.name}</li>`;
+                                    }).join('') : '<li class="text-slate-300 dark:text-slate-600 py-4 text-center">급식이 없습니다.</li>'}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            gridContainer.innerHTML = html;
+        }
+
+        // Simple toast activator
+        function showToast(message) {
+            const toast = document.getElementById('toast-message');
+            document.getElementById('toast-text').textContent = message;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Copy menu for messenger sharing
+        async function shareMeals() {
+            playNavSound();
+            const dateStr = getFormattedDateString(currentDate);
+            const meal = await fetchMealsFromNeis(currentSchool, currentDate);
+            
+            let shareText = `🌱 [${currentSchool.name} 점심 급식 안내]\n📅 ${dateStr}\n\n`;
+            
+            if (meal) {
+                const lunchMenu = meal.rawDishes.map(d => `• ${parseDish(d).name}`).join('\n');
+                shareText += `☀️ [중식 열량 - ${meal.kcal}]\n${lunchMenu}\n\n`;
+            } else {
+                shareText += `오늘 점심 급식 정보가 존재하지 않습니다.\n\n`;
+            }
+
+            shareText += `실시간 확인 ➡️ ${window.location.href}`;
+
+            try {
+                const tempTextArea = document.createElement("textarea");
+                tempTextArea.value = shareText;
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempTextArea);
+                
+                showToast("📋 점심 식단 정보가 클립보드에 복사되었습니다! 반 단톡에 전송해 보세요.");
+            } catch (err) {
+                showToast("복사 실패. 브라우저 제한이 있습니다.");
+            }
+        }
+
+        // Date Picker Handler
+        function onDatePickerChange(val) {
+            if (!val) return;
+            currentDate = new Date(val);
+            playNavSound();
+            loadDailyMeals();
+        }
+
+        // Set Target Date to Today
+        function setToday() {
+            currentDate = new Date();
+            playNavSound();
+            loadDailyMeals();
+        }
+
+        // Move day count
+        function navigateDate(days) {
+            currentDate.setDate(currentDate.getDate() + days);
+            playNavSound();
+            loadDailyMeals();
+        }
+
+        // Dark mode control
+        function toggleDarkMode() {
+            playNavSound();
+            const htmlEl = document.documentElement;
+            const darkIcon = document.getElementById('dark-icon');
+            
+            if (htmlEl.classList.contains('dark')) {
+                htmlEl.classList.remove('dark');
+                darkIcon.className = "fa-solid fa-moon text-slate-600";
+                localStorage.setItem('theme', 'light');
+            } else {
+                htmlEl.classList.add('dark');
+                darkIcon.className = "fa-solid fa-sun text-amber-400";
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Modal triggers
+        function openSchoolSearchModal() {
+            playNavSound();
+            const modal = document.getElementById('search-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('.transform').classList.remove('scale-95');
+                document.getElementById('modal-search-input').focus();
+            }, 50);
+        }
+
+        function closeSchoolSearchModal() {
+            playNavSound();
+            const modal = document.getElementById('search-modal');
+            modal.querySelector('.transform').classList.add('scale-95');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // NEIS School Search logic
+        async function handleSchoolSearch() {
+            const query = document.getElementById('modal-search-input').value.trim();
+            if (!query) {
+                showToast("학교명을 입력해 주세요.");
+                return;
+            }
+            
+            const listArea = document.getElementById('search-results-list');
+            listArea.innerHTML = `<div class="text-center py-8"><i class="fa-solid fa-spinner animate-spin text-2xl text-brand-600"></i><p class="text-xs text-slate-400 mt-2">나이스 데이터 기지국 검색 중...</p></div>`;
+
+            try {
+                const url = `https://open.neis.go.kr/hub/schoolInfo?Type=json&pIndex=1&pSize=20&SCHUL_NM=${encodeURIComponent(query)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.schoolInfo && data.schoolInfo[1] && data.schoolInfo[1].row) {
+                    const rows = data.schoolInfo[1].row;
+                    let html = '';
+                    rows.forEach(school => {
+                        html += `
+                            <button onclick="selectSchool({
+                                name: '${school.SCHUL_NM}',
+                                code: '${school.SD_SCHUL_CODE}',
+                                officeCode: '${school.ATPT_OFCDC_SC_CODE}',
+                                officeName: '${school.ATPT_OFCDC_SC_NM}',
+                                address: '${school.ORG_RDNMA}'
+                            })" class="w-full text-left p-3.5 bg-slate-50 dark:bg-slate-800 hover:bg-brand-50 hover:dark:bg-brand-950/30 border border-slate-200 dark:border-slate-700/60 rounded-xl transition flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-bold text-slate-900 dark:text-white text-sm">${school.SCHUL_NM}</h4>
+                                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${school.ORG_RDNMA}</p>
+                                </div>
+                                <span class="text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 font-bold px-2 py-1 rounded-md whitespace-nowrap">${school.ATPT_OFCDC_SC_NM.substring(0,2)}교육청</span>
+                            </button>
+                        `;
+                    });
+                    listArea.innerHTML = html;
+                } else {
+                    listArea.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs"><i class="fa-solid fa-circle-question text-3xl mb-2 opacity-30"></i><p>검색 결과가 없습니다. 올바른 고등학교 이름인지 확인하세요.</p></div>`;
+                }
+            } catch (err) {
+                console.error(err);
+                listArea.innerHTML = `<div class="text-center py-8 text-red-400 text-xs"><i class="fa-solid fa-hexagon-exclamation text-3xl mb-2 opacity-30"></i><p>나이스 서버와 연결하지 못했습니다.</p></div>`;
+            }
+        }
+
+        // Change target school
+        function selectSchool(schoolObj) {
+            currentSchool = schoolObj;
+            localStorage.setItem('selectedSchool', JSON.stringify(currentSchool));
+            
+            renderSchoolDetails();
+            closeSchoolSearchModal();
+            
+            // Reload with chosen school
+            if (viewMode === 'daily') loadDailyMeals();
+            else loadWeeklyMeals();
+            
+            showToast(`🏫 대시보드가 "${schoolObj.name}" 급식 정보로 연결되었습니다.`);
+        }
+
+        // --- Core Initiations ---
+        window.onload = async function() {
+            // Restore Dark mode
+            const savedTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('dark-icon').className = "fa-solid fa-sun text-amber-400";
+            }
+
+            // Restore school
+            const savedSchool = localStorage.getItem('selectedSchool');
+            if (savedSchool) {
+                currentSchool = JSON.parse(savedSchool);
+            } else {
+                const solved = await fetchSchoolBasicInfo('인천청라고등학교');
+                if (solved) {
+                    currentSchool = solved;
+                    localStorage.setItem('selectedSchool', JSON.stringify(solved));
+                }
+            }
+
+            renderSchoolDetails();
+            loadDailyMeals();
+        };
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (viewMode === 'daily') {
+                if (event.key === 'ArrowLeft') {
+                    navigateDate(-1);
+                } else if (event.key === 'ArrowRight') {
+                    navigateDate(1);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
